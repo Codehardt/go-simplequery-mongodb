@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Codehardt/go-simplequery-mongodb"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/Codehardt/go-simplequery-parser"
@@ -57,9 +59,8 @@ func parse(node simplequery.Node) (bson.E, error) {
 		op := "$" + strings.ToLower(reflect.TypeOf(node).Name()) // $eq, $ne, $gt, ...
 		return bson.E{
 			Key: d1.Key,
-			Value: bson.E{
-				Key:   op,
-				Value: d2.Value,
+			Value: bson.M{
+				op: d2.Value,
 			},
 		}, nil
 	case simplequery.ID:

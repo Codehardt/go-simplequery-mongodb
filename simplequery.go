@@ -40,17 +40,17 @@ func parse(node simplequery.Node) (bson.E, error) {
 	case simplequery.AND:
 		return bson.E{
 			Key:   "$and",
-			Value: bson.D{d1, d2},
+			Value: []interface{}{d1, d2},
 		}, nil
 	case simplequery.OR:
 		return bson.E{
 			Key:   "$or",
-			Value: bson.D{d1, d2},
+			Value: []interface{}{d1, d2},
 		}, nil
 	case simplequery.NOT:
 		return bson.E{
 			Key:   "$nor",
-			Value: bson.D{d1},
+			Value: []interface{}{d1},
 		}, nil
 	case simplequery.EQ, simplequery.NE, simplequery.GT, simplequery.GTE, simplequery.LT, simplequery.LTE:
 		op := "$" + strings.ToLower(reflect.TypeOf(node).Name()) // $eq, $ne, $gt, ...

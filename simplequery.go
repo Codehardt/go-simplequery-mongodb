@@ -12,56 +12,42 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func Parse(condition string) (bson.D, error) {
+func Parse(condition string) (bson.M, error) {
 	root, err := simplequery.Parse(condition)
 	if err != nil {
 		return nil, err
 	}
-	e, err := parse(root)
-	return bson.D{e}, err
+	e, _, _, err := parse(root)
+	return e, err
 }
 
 var rgx = regexp.MustCompile(`^/(.*)/([gimy]*)$`)
 
-func parse(node simplequery.Node) (bson.E, error) {
+func parse(node simplequery.Node) (bson.M, string, interface{}, error) {
 	if node == nil {
-		return bson.E{}, nil
+		return nil, "", nil, nil
 	}
 	c1, c2 := node.Children()
-	d1, err := parse(c1)
+	d1, k1, _, err := parse(c1)
 	if err != nil {
-		return bson.E{}, err
+		return nil, "", nil, err
 	}
-	d2, err := parse(c2)
+	d2, _, v2, err := parse(c2)
 	if err != nil {
-		return bson.E{}, err
+		return nil, "", nil, err
 	}
 	switch node.(type) {
 	case simplequery.AND:
-		return bson.E{
-			Key:   "$and",
-			Value: []interface{}{d1, d2},
-		}, nil
+		return bson.M{"$and": []interface{}{d1, d2}}, "", nil, nil
 	case simplequery.OR:
-		return bson.E{
-			Key:   "$or",
-			Value: []interface{}{d1, d2},
-		}, nil
+		return bson.M{"$or": []interface{}{d1, d2}}, "", nil, nil
 	case simplequery.NOT:
-		return bson.E{
-			Key:   "$nor",
-			Value: []interface{}{d1},
-		}, nil
+		return bson.M{"$nor": []interface{}{d1}}, "", nil, nil
 	case simplequery.EQ, simplequery.NE, simplequery.GT, simplequery.GTE, simplequery.LT, simplequery.LTE:
 		op := "$" + strings.ToLower(reflect.TypeOf(node).Name()) // $eq, $ne, $gt, ...
-		return bson.E{
-			Key: d1.Key,
-			Value: bson.M{
-				op: d2.Value,
-			},
-		}, nil
+		return bson.M{k1: bson.M{op: v2}}, "", nil, nil
 	case simplequery.ID:
-		return bson.E{Key: node.Value()}, nil
+		return nil, node.Value(), nil, nil
 	case simplequery.VAL:
 		var v interface{}
 		str := node.Value()
@@ -75,11 +61,11 @@ func parse(node simplequery.Node) (bson.E, error) {
 			// parse integer
 			v, err = strconv.Atoi(str)
 			if err != nil {
-				return bson.E{}, err
+				return nil, "", nil, err
 			}
 		}
-		return bson.E{Value: v}, nil
+		return nil, "", v, nil
 	default:
-		return bson.E{}, fmt.Errorf("unknown node type %T", node)
+		return nil, "", nil, fmt.Errorf("unknown node type %T", node)
 	}
 }

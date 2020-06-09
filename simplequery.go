@@ -7,12 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Codehardt/go-simplequery-mongodb"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"github.com/Codehardt/go-simplequery-parser"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Parse(condition string) (bson.D, error) {

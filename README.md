@@ -15,3 +15,24 @@ generates a nested `bson.D` struct with the following nested structure:
 ```
 
 that can be used in MongoDB's `.Find()`, `.Aggregate()`, `Count()`, `...` functions.
+
+Supported are the following operators:
+
+Operator    | Syntax
+----------- | --------------------------
+Parentheses | `(<exp>)`
+Logical AND | `<exp1> AND <exp2>`
+Logical OR  | `<exp1> OR <exp2>`
+Logical NOT | `NOT <exp>`
+LT          | `<field> < <value>`
+LTE         | `<field> <= <value>`
+GT          | `<field> > <value>`
+GTE         | `<field> >= <value>`
+EQ (INT)    | `<field> = <int>`
+EQ (STR)    | `<field> = "<str>"`
+EQ (RGX)    | `<field> = /<rgx>/<opt>`
+NE (INT)    | `<field> != <int>`
+NE (STR)    | `<field> != "<str>"`
+NE (RGX)    | `<field> != /<rgx>/<opt>`
+
+more operators like `EXISTS` or `IN` are coming soon ...
